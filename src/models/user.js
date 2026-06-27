@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema(
   {
@@ -16,6 +17,11 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error('Invalid email' + value);
+        }
+      },
     },
     password: {
       type: String,
@@ -44,6 +50,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         'https://media.istockphoto.com/id/1142192548/vector/man-avatar-profile-male-face-silhouette-or-icon-isolated-on-white-background-vector.jpg?s=1024x1024&w=is&k=20&c=ISYAkNv_k8SCN_pHkYWqlWdGSbirhx_yCigo7QC8NAw=',
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error('Invalid URL');
+        }
+      },
     },
     about: {
       type: String,
