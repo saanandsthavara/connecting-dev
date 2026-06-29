@@ -1,6 +1,10 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const { userAuth } = require('../middleware/auth');
-const { validateEditProfileData } = require('../utils/validation');
+const {
+  validateEditProfileData,
+  validatePasswordResetData,
+} = require('../utils/validation');
 const router = express.Router();
 
 router.get('/profile/view', userAuth, async (req, res) => {
@@ -27,6 +31,34 @@ router.patch('/profile/edit', userAuth, async (req, res) => {
     });
   } catch (error) {
     res.status(400).send('Error ' + error.message);
+  }
+});
+
+router.patch('/profile/forgotpassword', userAuth, async (req, res) => {
+  try {
+    validatePasswordResetData(req);
+
+    const loggedInUser = req.user;
+    const { oldPassword, newPassword } = req.body;
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      oldPassword,
+      loggedInUser.password,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new Error('Current password is incorrect');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    loggedInUser.password = hashedPassword;
+    await loggedInUser.save();
+
+    res.status(200).json({
+      message: 'Password updated successfully',
+    });
+  } catch (error) {
+    res.status(400).send('ERROR: ' + error.message);
   }
 });
 
