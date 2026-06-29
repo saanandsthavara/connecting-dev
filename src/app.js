@@ -6,8 +6,12 @@ const User = require('./models/user');
 const app = express();
 const { validateSignupData } = require('./utils/validation');
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const { userAuth } = require('./middleware/auth');
 
 app.use(express.json());
+app.use(cookieParser());
 
 //creating an API
 app.post('/signup', async (req, res) => {
@@ -49,14 +53,26 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error('Invalid Credentials');
+    } else {
+      const token = await jwt.sign({ _id: user._id }, 'devTINDER@8899');
+      res.cookie('token', token);
+      res.status(200).send('User logged in successfully');
     }
-
-    res.status(200).send('User logged in successfully');
   } catch (error) {
     res.status(400).send('Something went wrong ' + error.message);
   }
 });
 
+// profile API
+app.get('/profile', userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const safeUser = user.toObject ? user.toObject() : user;
+    res.status(200).send(safeUser);
+  } catch (err) {
+    res.status(400).send('ERROR: ' + err.message);
+  }
+});
 // get user by email
 app.get('/user', async (req, res) => {
   // we will get the email from the req body

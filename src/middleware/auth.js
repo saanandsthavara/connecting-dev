@@ -1,23 +1,30 @@
-// we are going to create a middleware for authentication and authorization
-const adminAuth = (req, res, next) => {
-  const token = 'sthavara';
-  if (token !== 'sthavara') {
-    return res.status(401).send('Unauthorized');
-  }
-  console.log('This is the admin middleware');
-  next();
-};
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
-const userAuth = (req, res, next) => {
-  const token = 'sdtoken';
-  if (token !== 'sdtoken') {
-    return res.status(401).send('Unauthorized');
+// we are going to create a middleware for authentication and authorization
+const userAuth = async (req, res, next) => {
+  // read the token from the request header
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      throw new Error('Invalid Token');
+    }
+
+    const decoded = jwt.verify(token, 'devTINDER@8899');
+    const { _id } = decoded;
+
+    const user = await User.findById(_id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(400).send('Token is not valid');
   }
-  console.log('This is the user middleware');
-  next('route');
 };
 
 module.exports = {
-  adminAuth,
   userAuth,
 };
