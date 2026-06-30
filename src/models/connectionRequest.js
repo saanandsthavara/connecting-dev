@@ -16,7 +16,7 @@ const connnectionRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: {
-        values: ['ignore', 'interested', 'accepted', 'rejected'],
+        values: ['ignored', 'interested', 'accepted', 'rejected'],
         message: `{VALUE} is incorrect status type`,
       },
     },
@@ -26,9 +26,23 @@ const connnectionRequestSchema = new mongoose.Schema(
   },
 );
 
-const ConnnectionRequestModel = new mongoose.model(
-  'connectionRequest',
+// it's a compound index which will make the query faster
+connnectionRequestSchema.index({
+  fromUserId: 1,
+  toUserId: 1,
+});
+
+connnectionRequestSchema.pre('save', function () {
+  connectionRequest = this;
+  // check if the fromUserId is same toUserId - it should not be same!!!
+  if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+    throw new Error('you cannot sent connection request to yourself!');
+  }
+});
+
+const ConnnectionRequest = new mongoose.model(
+  'ConnectionRequest',
   connnectionRequestSchema,
 );
 
-module.exports = ConnnectionRequestModel;
+module.exports = ConnnectionRequest;

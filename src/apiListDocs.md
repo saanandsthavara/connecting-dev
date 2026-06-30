@@ -9,13 +9,15 @@ POST /logout - done
 ## Profile Router
 
 GET /profile/view - done
-PATCH /profile/edit
-PATCH /profile/password [forgot password!]
+PATCH /profile/edit - done
+PATCH /profile/password [forgot password!] - done
 
 ## Connection Request Router
 
-POST /request/send/interested/:userId
-POST /request/send/ignored/:userId
+POST /request/send/:status/:userId
+POST /request/send/:status/:userId
+status = interested/ignored
+
 POST /request/review/accepted/:requestId
 POST /request/review/rejected/:requestId
 
