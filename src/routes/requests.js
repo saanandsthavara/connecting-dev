@@ -56,4 +56,48 @@ router.post('/request/send/:status/:toUserId', userAuth, async (req, res) => {
   }
 });
 
+router.post(
+  '/request/review/:status/:requestId',
+  userAuth,
+  async (req, res) => {
+    try {
+      // suppose - Saanand sent a connection request to Kavya!
+      // only Kavya can accept the connection request
+      // status should be interested
+      // req id should be valid
+      const loggedInUser = req.user;
+      console.log('user', loggedInUser);
+      const { status, requestId } = req.params;
+      console.log('status', status, requestId);
+      const allowedStatus = ['accepted', 'rejected'];
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).json({
+          message: 'Status is not allowed',
+        });
+      }
+      const connectionRequest = await ConnnectionRequest.findOne({
+        fromUserId: requestId,
+        toUserId: loggedInUser._id,
+        status: 'interested',
+      });
+
+      if (!connectionRequest) {
+        return res.status(404).json({
+          message: 'connection request not found!',
+        });
+      }
+
+      connectionRequest.status = status;
+
+      const data = await connectionRequest.save();
+      res.json({
+        message: 'connection request ' + status,
+        data,
+      });
+    } catch (error) {
+      res.status(400).send('ERROR ' + error.message);
+    }
+  },
+);
+
 module.exports = router;
