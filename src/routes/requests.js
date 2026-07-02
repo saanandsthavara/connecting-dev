@@ -61,8 +61,8 @@ router.post(
   userAuth,
   async (req, res) => {
     try {
-      // suppose - Saanand sent a connection request to Kavya!
-      // only Kavya can accept the connection request
+      // suppose - user1 sent a connection request to user2!
+      // only user2 can accept the connection request
       // status should be interested
       // req id should be valid
       const loggedInUser = req.user;

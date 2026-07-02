@@ -7,10 +7,12 @@ const connnectionRequestSchema = new mongoose.Schema(
     fromUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: 'User', // reference to the User model
     },
     toUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: 'User', // reference to the User model
     },
     status: {
       type: String,
