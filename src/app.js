@@ -5,9 +5,11 @@ const connectDB = require('./config/database');
 const User = require('./models/user');
 const app = express();
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 const authRouter = require('./routes/auth');
 const profileRouter = require('./routes/profile');
